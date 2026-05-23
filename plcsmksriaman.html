@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ms">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistem Pelaporan PLC Digital SMK Sri Aman</title>
+  <style>
+    /* CSS GLOBAL */
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background: #f0f2f5; padding: 20px; color: #333; }
+
+    /* CONTAINER UTAMA */
+    .container {
+      max-width: 900px; /* Saiz lebih optimum untuk A4 */
+      margin: auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #8B0000, #E53935);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+    }
+    .header-top { display: flex; justify-content: center; align-items: center; gap: 30px; margin-bottom: 15px; }
+    .logo { width: 80px; height: 80px; background: white; border-radius: 50%; padding: 5px; object-fit: contain; }
+    .title-section h1 { font-size: 28px; letter-spacing: 1px; }
+    .title-section h2 { font-size: 18px; font-weight: 400; opacity: 0.9; }
+
+    /* KANDUNGAN */
+    .content { padding: 40px; }
+    .section-title {
+      background: #f8f9fa;
+      color: #B71C1C;
+      padding: 10px 15px;
+      border-left: 5px solid #B71C1C;
+      margin: 25px 0 15px 0;
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+    }
+
+    /* FORM & LAYOUT */
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .full-width { grid-column: span 2; }
+    .form-group { display: flex; flex-direction: column; margin-bottom: 5px; }
+    label { font-weight: 700; font-size: 13px; color: #555; margin-bottom: 5px; text-transform: uppercase; }
+    
+    input, textarea, select {
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      background: #fafafa;
+    }
+    textarea { min-height: 100px; }
+
+    /* GAMBAR */
+    .preview-container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .preview-box {
+      border: 1px solid #ddd;
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fdfdfd;
+      border-radius: 4px;
+    }
+    .preview-box img { width: 100%; height: 100%; object-fit: cover; display: none; }
+
+    /* SIGNATURE BOX */
+    .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 20px; }
+    
+    /* BUTTONS */
+    .button-group {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 40px;
+      padding-bottom: 40px;
+    }
+    button {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
+    .pdf-btn { background: #D32F2F; color: white; }
+    .reset-btn { background: #616161; color: white; }
+    .btn-action { font-size: 12px; padding: 5px 10px; margin-top: 5px; background: #8B0000; color: white; border-radius: 3px; width: fit-content; }
+
+    /* KHAS UNTUK PDF/CETAK */
+    @media print {
+      body { background: white; padding: 0; }
+      .container { box-shadow: none; max-width: 100%; }
+      .button-group, .btn-action, .btn-buang-panitia, .btn-buang-ahli, input[type="file"] { display: none !important; }
+      input, textarea, select { border: none; background: transparent; padding: 5px 0; }
+      .section-title { background: #eee !important; -webkit-print-color-adjust: exact; }
+      .preview-box { border: 1px solid #eee; }
+      
+      /* Mengelakkan elemen terpotong di tengah jalan */
+      .form-group, .section-title, .preview-container, .signature-grid {
+        page-break-inside: avoid;
+      }
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+<div class="container" id="report-content">
+  <div class="header">
+    <div class="header-top">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Coat_of_arms_of_Selangor.svg/1200px-Coat_of_arms_of_Selangor.svg.png" class="logo">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Jalur_Gemilang.svg/1280px-Jalur_Gemilang.svg.png" class="logo">
+    </div>
+    <div class="title-section">
+      <h1>SMK SRI AMAN</h1>
+      <h2>LAPORAN AKTIVITI PLC DIGITAL</h2>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="section-title">A. Maklumat Pelaksanaan</div>
+    <div class="form-grid">
+      <div class="form-group full-width">
+        <label>Tajuk Aktiviti</label>
+        <input type="text" placeholder="Contoh: Bengkel Teknik Menjawab Kimia SPM">
+      </div>
+      <div class="form-group">
+        <label>Strategi PLC</label>
+        <select>
+          <option value="">Pilih Strategi</option>
+          <option>Learning Walks</option>
+          <option>Lesson Study</option>
+          <option>Teacher Sharing Sessions</option>
+          <option>Peer Coaching</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tempat</label>
+        <input type="text" placeholder="Lokasi aktiviti">
+      </div>
+      <div class="form-group">
+        <label>Tarikh Mula</label>
+        <input type="date">
+      </div>
+      <div class="form-group">
+        <label>Tarikh Tamat</label>
+        <input type="date">
+      </div>
+    </div>
+
+    <div class="section-title">B. Ahli Kumpulan</div>
+    <div id="panitia-section" class="form-group full-width">
+      <label>Panitia Terlibat</label>
+      <div id="panitia-container">
+        <input type="text" placeholder="Nama Panitia" style="margin-bottom:5px; width:100%;">
+      </div>
+      <button class="btn-action" onclick="tambahPanitia()">+ Tambah Panitia</button>
+    </div>
+
+    <div class="section-title">C. Butiran Perbincangan</div>
+    <div class="form-group full-width">
+      <label>Fokus / Isu</label>
+      <textarea placeholder="Nyatakan fokus utama perbincangan..."></textarea>
+    </div>
+    <div class="form-group full-width">
+      <label>Hasil / Penambahbaikan</label>
+      <textarea placeholder="Apakah tindakan susulan yang akan diambil..."></textarea>
+    </div>
+
+    <div class="section-title">D. Lensa Aktiviti (Gambar)</div>
+    <input type="file" accept="image/*" multiple onchange="previewImages(event)">
+    <div class="preview-container">
+      <div class="preview-box"><img id="img1"></div>
+      <div class="preview-box"><img id="img2"></div>
+      <div class="preview-box"><img id="img3"></div>
+    </div>
+
+    <div class="section-title">E. Pengesahan</div>
+    <div class="signature-grid">
+      <div class="form-group">
+        <label>Disediakan Oleh:</label>
+        <div style="height:60px; border-bottom:1px solid #ccc; margin-bottom:10px;"></div>
+        <input type="text" placeholder="Nama & Jawatan">
+      </div>
+      <div class="form-group">
+        <label>Disahkan Oleh:</label>
+        <div style="height:60px; border-bottom:1px solid #ccc; margin-bottom:10px;"></div>
+        <select>
+          <option>Pengetua</option>
+          <option>Penolong Kanan Pentadbiran</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="button-group">
+    <button class="reset-btn" onclick="location.reload()">RESET</button>
+    <button class="pdf-btn" onclick="generatePDF()">SIMPAN SEBAGAI PDF</button>
+  </div>
+</div>
+
+<script>
+  function tambahPanitia() {
+    const container = document.getElementById('panitia-container');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.placeholder = 'Nama Panitia';
+    input.style.marginBottom = '5px';
+    input.style.width = '100%';
+    container.appendChild(input);
+  }
+
+  function previewImages(event) {
+    const files = event.target.files;
+    for (let i = 0; i < 3; i++) {
+      if (files[i]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.getElementById('img' + (i + 1));
+          img.src = e.target.result;
+          img.style.display = 'block';
+        }
+        reader.readAsDataURL(files[i]);
+      }
+    }
+  }
+
+  function generatePDF() {
+    const element = document.getElementById('report-content');
+    
+    // Sinkronkan nilai input ke atribut value supaya html2pdf dapat membacanya
+    const inputs = element.querySelectorAll('input, textarea, select');
+    inputs.forEach(item => {
+      if(item.tagName === 'SELECT') {
+        // Untuk select, kita tidak boleh letak atribut value begitu sahaja
+        // Jadi kita biarkan ia dibaca secara visual oleh html2canvas
+      } else {
+        item.setAttribute('value', item.value);
+      }
+    });
+
+    const opt = {
+      margin:       [10, 10, 10, 10],
+      filename:     'Laporan_PLC_SMKSA.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    html2pdf().set(opt).from(element).save();
+  }
+</script>
+</body>
+</html>
